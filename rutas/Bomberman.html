@@ -153,12 +153,14 @@
                 case 27:
                     //dir=
                     pause = !pause;
+                    audio.pause();
                     pausaSound.play();
                     if (timerInterval) {
                         clearInterval(timerInterval);
                         timerInterval = null
                     } else {
                         // Si el temporizador está inactivo, reanúdalo
+                        audio.play();
                         timerInterval = setInterval(startTimer, 1000);
                     }
 
