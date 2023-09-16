@@ -151,7 +151,6 @@
                     player.x += speed
                     break;
                 case 27:
-                    //dir=
                     pause = !pause;
                     audio.pause();
                     pausaSound.play();
@@ -163,13 +162,11 @@
                         audio.play();
                         timerInterval = setInterval(startTimer, 1000);
                     }
-
                     break;
             }
         })
 
         function update() {
-
             if (!pause) {
                 switch (dir) {
                     case 87: // Tecla W (arriba)
@@ -190,22 +187,17 @@
                     if (player.seTocan(obstaculosIndestruibles[i])) {
                         switch (dir) {
                             case 87:
-                                //  dir = 0
                                 player.y += speed;
                                 break;
                             case 83:
-                                //  dir = 0                      
                                 player.y -= speed;
                                 break;
                             case 65:
-                                //   dir = 0                    
                                 player.x += speed;
                                 break;
                             case 68:
-                                //   dir = 0                    
                                 player.x -= speed;
                                 break;
-
                         }
                         dir = 0;
                     }
@@ -214,19 +206,15 @@
                     if (player.seTocan(obstaculosDestruibles[j])) {
                         switch (dir) {
                             case 87:
-                                //  dir = 0
                                 player.y += speed;
                                 break;
                             case 83:
-                                //  dir = 0                      
                                 player.y -= speed;
                                 break;
                             case 65:
-                                //   dir = 0                    
                                 player.x += speed;
                                 break;
                             case 68:
-                                //   dir = 0                    
                                 player.x -= speed;
                                 break;
 
@@ -234,7 +222,6 @@
                         dir = 0;
                     }
                 }
-
             }
             repaint();
             window.requestAnimationFrame(update);
