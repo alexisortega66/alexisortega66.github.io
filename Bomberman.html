@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>-Bomberman-</title>
+</head>
+
+<body>
+
+    <center><b style="font-size: 30px;"><label for="time">Tiempo: <span id="timer">0</span> segundos</label></b>
+    </center>
+
+
+    <center> <canvas width="730" height="650" id="myCanvas">.........................</canvas></center>
+
+    <style>
+        #myCanvas {
+            border: 20px solid #e9f508;
+            margin: 3em;
+        }
+    </style>
+
+    <script>
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d')
+
+        var speed = 20;
+        var dir = 0;
+        let obstaculosDestruibles = [];
+        let obstaculosIndestruibles = [];
+        let pause = false;
+        let gano=false;
+        let tiempo = 0; // Variable para contar el tiempo
+        let timerInterval; // Variable para almacenar el intervalo del temporizador
+
+        let audio = new Audio();
+        let pausaSound = new Audio();
+
+        let piedra = new Image();
+        let algas = new Image();
+        let coral = new Image();
+        let jugador = new Image();
+        let bomba = new Image();
+        bomba.src="./imagenes/medusa.png"
+        jugador.src = "./imagenes/bobEsponja.png"
+        piedra.src = "./imagenes/bloques.png";
+        coral.src = "./imagenes/coral.png";
+        algas.src = "./imagenes/algas-marinas.png";
+        audio.src = "./sonidos/bob-theme.mp3";
+        pausaSound.src = "./sonidos/pausaSound.mp3";
+
+        class Rectangulo {
+            constructor(x, y, w, h, c) {
+                this.x = x;
+                this.y = y;
+                this.w = w;
+                this.h = h;
+                this.c = c;
+            }
+
+            paint() {
+                ctx.drawImage(jugador, this.x, this.y, this.w, this.h);
+            }
+
+            murosIndestructible() {
+                ctx.drawImage(coral, this.x, this.y, this.w, this.h);
+            }
+
+            seTocan(target) {
+                if (this.x < target.x + target.w &&
+                    this.x + this.w > target.x &&
+                    this.y < target.y + target.h &&
+                    this.y + this.h > target.y) {
+                    return true;
+                }
+                return false;
+
+            }
+        }
+
+        class bombas {
+            constructor(x, y, w, h) {
+                this.x = x;
+                this.y = y;
+                this.w = w;
+                this.h = h;
+            }
+            dibujarMedusa() {
+                drawImage(medusa, this.x, this.y, this.w, this.h);
+            }
+        }
+
+        class muro {
+            constructor(x, y, w, h) {
+                this.x = x;
+                this.y = y;
+                this.w = w;
+                this.h = h;
+
+            }
+
+            dibuarMuro() {
+                ctx.drawImage(algas, this.x, this.y, this.w, this.h);
+
+            }
+
+        }
+
+        const player = new Rectangulo(20, 20, 40, 40, "black");
+        const target = new Rectangulo(350, 350, 30, 30, "black");
+
+        for (let j = 0; j < 9; j++) {
+            for (let i = 0; i < 10; i++) {
+                if (i * 30 > 40 || j * 30 > 40) {
+
+                    if (i % 2 === 0 && j % 2 == 0) {
+
+                        obstaculosIndestruibles.push(new Rectangulo(20 + i * 70, 20 + j * 70, 50, 50, "blue"));
+                    } else {
+                        obstaculosDestruibles.push(new muro(20 + i * 70, 20 + j * 70, 50, 50, "brown"));
+                    }
+                }
+            }
+        }
+
+        function startTimer() {
+            audio.play();
+            tiempo++;
+            document.getElementById("timer").textContent = tiempo;
+        }
+
+        document.addEventListener("keydown", (e) => {
+            //ejercicio 26 - frames
+            switch (e.keyCode) {
+                case 87:
+                    if (!pause) dir = e.keyCode;
+                    player.y -= speed
+                    break;
+                case 83:
+                    if (!pause) dir = e.keyCode;
+                    player.y += speed
+                    break;
+                case 65:
+                    if (!pause) dir = e.keyCode;
+                    player.x -= speed
+                    break;
+                case 68:
+                    if (!pause) dir = e.keyCode;
+                    player.x += speed
+                    break;
+                case 27:
+                    //dir=
+                    pause = !pause;
+                    pausaSound.play();
+                    if (timerInterval) {
+                        clearInterval(timerInterval);
+                        timerInterval = null
+                    } else {
+                        // Si el temporizador está inactivo, reanúdalo
+                        timerInterval = setInterval(startTimer, 1000);
+                    }
+
+                    break;
+            }
+        })
+
+        function update() {
+
+            if (!pause) {
+                switch (dir) {
+                    case 87: // Tecla W (arriba)
+                        if (player.y < 0) { player.y = 0; } // Evitar que se salga por arriba
+                        break;
+                    case 83: // Tecla S (abajo)
+                        if (player.y > 610) { player.y = 610; } // Evitar que se salga por abajo
+                        break;
+                    case 65: // Tecla A (izquierda)
+                        if (player.x < 0) { player.x = 0; } // Evitar que se salga por la izquierda
+                        break;
+                    case 68: // Tecla D (derecha)
+                        if (player.x > 690) { player.x = 690; } // Evitar que se salga por la derecha
+                        break;
+                }
+
+                for (var i = obstaculosIndestruibles.length - 1; i >= 0; i--) {
+                    if (player.seTocan(obstaculosIndestruibles[i])) {
+                        switch (dir) {
+                            case 87:
+                                //  dir = 0
+                                player.y += speed;
+                                break;
+                            case 83:
+                                //  dir = 0                      
+                                player.y -= speed;
+                                break;
+                            case 65:
+                                //   dir = 0                    
+                                player.x += speed;
+                                break;
+                            case 68:
+                                //   dir = 0                    
+                                player.x -= speed;
+                                break;
+
+                        }
+                        dir = 0;
+                    }
+                }
+                for (var j = obstaculosDestruibles.length - 1; j >= 0; j--) {
+                    if (player.seTocan(obstaculosDestruibles[j])) {
+                        switch (dir) {
+                            case 87:
+                                //  dir = 0
+                                player.y += speed;
+                                break;
+                            case 83:
+                                //  dir = 0                      
+                                player.y -= speed;
+                                break;
+                            case 65:
+                                //   dir = 0                    
+                                player.x += speed;
+                                break;
+                            case 68:
+                                //   dir = 0                    
+                                player.x -= speed;
+                                break;
+
+                        }
+                        dir = 0;
+                    }
+                }
+
+            }
+            repaint();
+            window.requestAnimationFrame(update);
+
+        }
+
+        function repaint() {
+            if (!pause) {
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, 0, 730, 650);
+                ctx.font = "20px Verdana";
+                ctx.fillStyle = "black";
+                player.paint();
+                target.paint();
+                for (var i = obstaculosIndestruibles.length - 1; i >= 0; i--) {
+                    obstaculosIndestruibles[i].murosIndestructible();
+
+                }
+                for (var i = obstaculosDestruibles.length - 1; i >= 0; i--) {
+                    obstaculosDestruibles[i].dibuarMuro();
+
+                }
+            } else {
+                ctx.fillStyle = "rgba(154,160,154,0.020)";
+                ctx.fillRect(0, 0, 730, 650);
+                ctx.font = "30px Verdana";
+                ctx.fillStyle = "black";
+                ctx.fillText("P A U S E", 300, 340)
+            }
+        }
+
+        window.addEventListener("load", function () {
+            timerInterval = setInterval(startTimer, 1000); // Actualiza cada segundo (1000 ms)
+        });
+
+        window.requestAnimationFrame = (function () {
+            return window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                function (callback) {
+                    window.setTimeout(callback, 17);
+                };
+        }());
+        window.requestAnimationFrame(update);
+
+    </script>
+</body>
+
+</html>
